@@ -38,22 +38,24 @@ class Movies extends Component {
     }
 
     handleGenreSelect = genre => {
-        console.log(genre)
+        this.setState({selectedGenre: genre})
     };
     render() {  
 
         const  { length: count } = this.state.movies;
-        const {pageSize, currentPage, movies: allMovies } = this.state
+        const {pageSize, currentPage,selectedGenre, movies: allMovies } = this.state
         if (count === 0) return <p>There are no movies in the database</p>;
 
-        const movies = paginate(allMovies, currentPage, pageSize);
+        const filtered = selectedGenre ? allMovies.filter(m => m.genre._id === selectedGenre._id) : allMovies;
+        const movies = paginate(filtered, currentPage, pageSize);
         
-
+       
         return ( 
             <div className="row">
-                <div className="col-2">
+                <div className="col-3">
                     <ListGroup items={this.state.genres} 
-                    onItemSelect={this.handleGenreSelect}/>
+                    onItemSelect={this.handleGenreSelect}
+                    selectedItem={this.state.selectedGenre} />
                 </div>
                 <div className="col">
                 <p>Showing {count} movies in the database. </p>
@@ -78,19 +80,19 @@ class Movies extends Component {
                         <td><Like onClick={() => this.handleLike(movie)} liked={movie.liked}/></td>
                         <td><button onClick={ () =>this.handleDelete(movie)} className="btn btn-danger btn-sm">Delete</button></td>
 
-                    </tr>)};
+                    </tr>)}
                 </tbody>
             </table>
 
             <Pagination 
-            itemsCount={count} 
+            itemsCount={filtered.length} 
             pageSize={pageSize}
              onPageChange={this.handlePageChange} 
              currentPage={currentPage} />
                 </div>
             
             </div>
-         );
+         )
     }
 }
  
