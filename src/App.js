@@ -50,6 +50,7 @@ import Customer from './components/common/customer';
 import Rentals from './components/common/Rentals';
 import NotFound from './components/common/NotFound';
 import Navbar from './components/common/NavBar';
+import LoginForm from './components/common/LoginForm';
 
 const App = () => {
     return ( 
@@ -58,6 +59,7 @@ const App = () => {
         <Navbar />
         <main className="container">
         <Switch>
+            <Route path="/login" component={LoginForm} />
             <Route path="/movies" component={Movies} />
             <Route path="/rentals" component={Rentals} />
             <Route path="/customers" component={Customer} />
