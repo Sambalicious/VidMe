@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { getMovies } from '../fakemovies/fakeMovies';
-import { getGenres } from '../fakemovies/fakeGenreService'
+import { getMovies, deleteMovie } from '../services/movieService'
+import { getGenres } from '../services/genreService';
 
 import ListGroup from './common/ListGroup';
 import Pagination from './common/Pagination';
@@ -9,6 +9,7 @@ import MoviesTable from './common/MoviesTable';
 import _ from 'lodash';
 import { Link } from 'react-router-dom';
 import SearchBox from './SearchBox';
+import { toast } from 'react-toastify';
 
 class Movies extends Component {
     state = {  
@@ -21,17 +22,36 @@ class Movies extends Component {
         searchQuery: ''
     };
 
-    componentDidMount() {
-        const genres = [{_id: '',name: 'All Genres'}, ...getGenres()]
+      async componentDidMount() {
+        const { data } = await getGenres()
+        const genres = [{_id: '',name: 'All Genres'}, ...data]
+
+        const { data:movies } =await getMovies();
         this.setState({
-            movies: getMovies(),
+           
+            movies,
             genres
 
         });
     }
-    handleDelete = (movie) => {
-      const movies =  this.state.movies.filter(c => c._id !==movie._id);
-      this.setState({movies}); 
+    handleDelete = async (movie) => {
+        const originalMovies = this.state.movies
+        try {
+            const movies =  originalMovies.filter(c => c._id !==movie._id);
+            this.setState({movies});
+            await deleteMovie(movie._id)
+            
+        } catch (ex) {
+            if(ex.response && ex.response.status === 404){
+                toast.error('This movie has already been deleted')
+                this.setState({movie:originalMovies})
+            }
+            }
+           
+
+     
+
+     
     }
 
     handleLike = (movie) => {
@@ -49,6 +69,7 @@ class Movies extends Component {
     handleGenreSelect = genre => {
         this.setState({selectedGenre: genre, searchQuery:"", currentPage: 1})
     };
+
 
     handleSearch = query => {
         this.setState({ searchQuery: query, selectedGenre: null, currentPage: 1 });
